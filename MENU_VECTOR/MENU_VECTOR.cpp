@@ -1,187 +1,105 @@
 ﻿#include <iostream>
-#include <vector>
-#include <string>
-#include <fstream>
-#include<algorithm>
+#include "VectorManager.h"
 
-using namespace std;
-
-void displayMenu() {
-    cout << "1 -> Изменить размер вектора\n"
-        << "2 -> Добавить элемент в конец\n"
-        << "3 -> Удалить элемент в конце\n"
-        << "4 -> Отсортировать массив от меньшего к большему\n"
-        << "5 -> Отсортировать массив от большего к меньшему\n"
-        << "6 -> Вывести вектор\n"
-        << "7 -> Добавить элементы в вектор\n"
-        << "8 -> Очистить вектор\n"
-        << "9 -> Записать вектор в файл\n"
-        << "10 -> Очистить файл\n"
-        << "11 -> Вывести данные файла\n"
-        << "12 -> Открыть файл с данными\n"
-        << "13 -> Вывести исходный вектор\n"
-        << "14 -> Оставить только четные числа\n"
-        << "15 -> Оставить только нечетные числа\n"
-        << "0 -> Для выхода\n";
-}
-
-void resizeVector(int newSize, vector<int>& vec) {
-    if (newSize <= 0) {
-        cerr << "Размер слишком мал\n";
-        return;
-    }
-    vec.resize(newSize);
-    cout << "Размер изменен успешно!\n";
-}
-
-void sortAscending(vector<int>& vec) {
-    if (vec.empty()) {
-        cerr << "Массив пуст\n";
-        return;
-    }
-    sort(vec.begin(), vec.end());
-    cout << "Отсортирован успешно!\n";
-}
-
-void sortDescending(vector<int>& vec) {
-    if (vec.empty()) {
-        cerr << "Массив пуст\n";
-        return;
-    }
-    sort(vec.rbegin(), vec.rend());
-    cout << "Отсортирован успешно!\n";
-}
-
-void filterEvenNumbers(const vector<int>& vec) {
-    for (int num : vec) {
-        if (num % 2 == 0) {
-            cout << num << " ";
-        }
-    }
-    cout << endl;
-}
-
-void filterOddNumbers(const vector<int>& vec) {
-    for (int num : vec) {
-        if (num % 2 != 0) {
-            cout << num << " ";
-        }
-    }
-    cout << endl;
-}
+// version 3.0 Много багов просьба не ломать прогу в добавлением элементов не добавляйте буквы и типы по типу double
 
 int main() {
+    std::system("color a");
     setlocale(LC_ALL, "RU");
 
+    int size = 0, choice = 0, num = 0, index = 0, target = 0;
+    string save = " ";
     ofstream file("Vector.txt", ofstream::app);
     ifstream ifile("Vector.txt");
-    string save;
-    int size, choice, num;
+    std::cout << "Введите размер вектора: ";
+    std::cin >> size;
 
-    cout << "Введите размер вектора: ";
-    cin >> size;
-    if (size < 0 )
-    {
-        cerr << "Неверный размер\n";
+    if (size < 0) {
+        std::cerr << "Неверный размер\n";
         return -1;
     }
-    vector<int> vec(size);
-    vector<int> originalVec(vec);
 
-    displayMenu();
+    VectorManager vm(size);  
+    vm.displayMenu();        
 
-    while (cin >> choice && choice != 0) {
+    while (std::cin >> choice && choice != 0) {
         switch (choice) {
         case 1:
-            cout << "Введите новый размер вектора: ";
-            cin >> size;
-            if (size < 0)
-            {
-                cerr << "Неверный размер\n";
-                return -1;
-            }
-            resizeVector(size, vec);
-            resizeVector(size, originalVec);
+            std::cout << "Введите новый размер вектора: ";
+            std::cin >> size;
+            vm.resize(size);
             break;
         case 2:
-            cout << "Введите элемент для добавления: ";
-            cin >> num;
-            vec.push_back(num);
-            originalVec.push_back(num);
-            cout << "Элемент добавлен!\n";
+            std::cout << "Введите элемент для добавления: ";
+            std::cin >> num;
+            vm.addElement(num);
             break;
         case 3:
-            if (!vec.empty()) {
-                vec.pop_back();
-                originalVec.pop_back();
-                cout << "Элемент удален успешно!\n";
-            }
-            else {
-                cout << "Вектор пуст!\n";
-            }
+            vm.removeElement();
             break;
         case 4:
-            sortAscending(vec);
+            vm.sortAscending();
             break;
         case 5:
-            sortDescending(vec);
+            vm.sortDescending();
             break;
         case 6:
-            for (int num : vec) {
-                cout << "[" << num << "] ";
-            }
-            cout << endl;
+            vm.displayVector();
             break;
         case 7:
-            cout << "Вводите элементы, нажимая Enter после каждого:\n";
-            for (int& num : vec) {
-                cin >> num;
-            }
-            originalVec = vec;
+            vm.clear();
             break;
         case 8:
-            vec.clear();
-            cout << "Вектор очищен!\n";
+            vm.saveToFile("Vector.txt");
             break;
         case 9:
-            for (int num : vec) {
-                file << num << " ";
-            }
-            cout << "Записано в файл успешно!\n";
+            vm.loadFromFile("Vector.txt");
             break;
         case 10:
-            file.close();
-            file.open("Vector.txt", ofstream::trunc);
-            cout << "Файл очищен!\n";
+            vm.filterEven();
             break;
         case 11:
-            while (getline(ifile, save)) {
-                cout << save << " ";
-            }
-            cout << endl;
+            vm.filterOdd();
             break;
         case 12:
-            system("start Vector.txt");
+            std::cout << "Введите число для удаления: ";
+            std::cin >> num;
+            vm.eraseElement(num);
             break;
         case 13:
-            for (int num : originalVec) {
-                cout << num << " ";
-            }
-            cout << endl;
+            std::cout << "Введите число для вставки: ";
+            std::cin >> num;
+            std::cout << "Введите индекс: ";
+            std::cin >> index;
+            vm.insertElement(num, index);
             break;
         case 14:
-            filterEvenNumbers(vec);
+            vm.deleteDuplicates();
             break;
         case 15:
-            filterOddNumbers(vec);
+            vm.AddElementVec();
             break;
-        default:
-            cout << "Неверный выбор!\n";
+        case 16:
+            vm.clearFile(file);
             break;
+        case 18:
+            vm.DisplayFile(ifile, save);
+            break;
+        case 19:
+            vm.OpenFileData();
+            break;
+        case 20:
+            std::cout << "Введите число для поиска: ";
+            std::cin >> target;
+            int indexFound = vm.binarySearch(target);
+            if (indexFound != -1) {
+                std::cout << "Число найдено на индексе: " << indexFound << std::endl;
+            }
+            break;
+        
         }
-        displayMenu();
+        vm.displayMenu();  
     }
 
-    file.close();
     return 0;
 }
